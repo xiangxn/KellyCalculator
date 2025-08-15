@@ -1,6 +1,8 @@
 // src/components/KellyPositionCalculator.tsx
 import React, { useMemo, useState } from "react";
 
+const quoteSymbol = "USDT"
+
 function fmt(n: number, d = 2) {
     if (!Number.isFinite(n)) return "-";
     return n.toFixed(d);
@@ -77,11 +79,11 @@ export default function KellyPositionCalculator() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                    <label className="block text-sm font-medium">本金 (USDT)</label>
+                    <label className="block text-sm font-medium">本金 ({quoteSymbol})</label>
                     <input
                         type="number"
                         value={capital}
-                        onChange={(e) => setCapital(parseFloat(e.target.value || "0"))}
+                        onChange={(e) => setCapital(parseFloat(e.target.value))}
                         className="mt-1 w-full border rounded px-2 py-1"
                     />
                 </div>
@@ -91,7 +93,7 @@ export default function KellyPositionCalculator() {
                     <input
                         type="number"
                         value={leverage}
-                        onChange={(e) => setLeverage(parseInt(e.target.value || "1", 10))}
+                        onChange={(e) => setLeverage(parseInt(e.target.value, 10))}
                         className="mt-1 w-full border rounded px-2 py-1"
                     />
                 </div>
@@ -101,7 +103,7 @@ export default function KellyPositionCalculator() {
                     <input
                         type="number"
                         value={entryPrice}
-                        onChange={(e) => setEntryPrice(parseFloat(e.target.value || "0"))}
+                        onChange={(e) => setEntryPrice(parseFloat(e.target.value))}
                         className="mt-1 w-full border rounded px-2 py-1"
                     />
                 </div>
@@ -111,7 +113,7 @@ export default function KellyPositionCalculator() {
                     <input
                         type="number"
                         value={stopPrice}
-                        onChange={(e) => setStopPrice(parseFloat(e.target.value || "0"))}
+                        onChange={(e) => setStopPrice(parseFloat(e.target.value))}
                         className="mt-1 w-full border rounded px-2 py-1"
                     />
                 </div>
@@ -121,17 +123,17 @@ export default function KellyPositionCalculator() {
                     <input
                         type="number"
                         value={targetPrice}
-                        onChange={(e) => setTargetPrice(parseFloat(e.target.value || "0"))}
+                        onChange={(e) => setTargetPrice(parseFloat(e.target.value))}
                         className="mt-1 w-full border rounded px-2 py-1"
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium">胜率 p (0-1)</label>
+                    <label className="block text-sm font-medium">胜率 (0-1)</label>
                     <input
                         type="number"
                         step="0.01"
                         value={winRate}
-                        onChange={(e) => setWinRate(parseFloat(e.target.value || "0"))}
+                        onChange={(e) => setWinRate(parseFloat(e.target.value))}
                         className="mt-1 w-full border rounded px-2 py-1"
                     />
                 </div>
@@ -177,13 +179,13 @@ export default function KellyPositionCalculator() {
                     </div>
 
                     <div>
-                        <div className="text-sm text-gray-500">凯利比例 f</div>
+                        <div className="text-sm text-gray-500">凯利比例 (f)</div>
                         <div className="font-semibold text-lg">{fmt(deriv.f * 100, 2)}%</div>
                     </div>
 
                     <div>
-                        <div className="text-sm text-gray-500">风险金额 (USDT)</div>
-                        <div className="font-semibold">{fmt(deriv.riskAmount, 2)} USDT</div>
+                        <div className="text-sm text-gray-500">风险金额 ({quoteSymbol})</div>
+                        <div className="font-semibold">{fmt(deriv.riskAmount, 2)} {quoteSymbol}</div>
                     </div>
 
                     <div>
@@ -192,13 +194,13 @@ export default function KellyPositionCalculator() {
                     </div>
 
                     <div>
-                        <div className="text-sm text-gray-500">名义仓位 (USDT)</div>
-                        <div className="font-semibold">{fmt(deriv.nominalPosition, 2)} USDT</div>
+                        <div className="text-sm text-gray-500">名义仓位 ({quoteSymbol})</div>
+                        <div className="font-semibold">{fmt(deriv.nominalPosition, 2)} {quoteSymbol}</div>
                     </div>
 
                     <div>
-                        <div className="text-sm text-gray-500">保证金 (USDT)</div>
-                        <div className="font-semibold">{fmt(deriv.margin, 2)} USDT</div>
+                        <div className="text-sm text-gray-500">保证金 ({quoteSymbol})</div>
+                        <div className="font-semibold">{fmt(deriv.margin, 2)} {quoteSymbol}</div>
                     </div>
 
                     <div>
@@ -208,24 +210,24 @@ export default function KellyPositionCalculator() {
 
                     <div>
                         <div className="text-sm text-gray-500">价格差 StopDiff / TargetDiff</div>
-                        <div className="font-semibold">{fmt(deriv.stopDiff, 2)} / {fmt(deriv.targetDiff, 2)} USDT</div>
+                        <div className="font-semibold">{fmt(deriv.stopDiff, 2)} / {fmt(deriv.targetDiff, 2)} {quoteSymbol}</div>
                     </div>
 
                     <div>
-                        <div className="text-sm text-gray-500">止损亏损金额 (USDT)</div>
-                        <div className="text-red-600 font-semibold">{fmt(deriv.lossAmount, 2)} USDT</div>
+                        <div className="text-sm text-gray-500">止损亏损金额 ({quoteSymbol})</div>
+                        <div className="text-red-600 font-semibold">{fmt(deriv.lossAmount, 2)} {quoteSymbol}</div>
                     </div>
 
                     <div>
-                        <div className="text-sm text-gray-500">止盈盈利金额 (USDT)</div>
-                        <div className="text-green-600 font-semibold">{fmt(deriv.profitAmount, 2)} USDT</div>
+                        <div className="text-sm text-gray-500">止盈盈利金额 ({quoteSymbol})</div>
+                        <div className="text-green-600 font-semibold">{fmt(deriv.profitAmount, 2)} {quoteSymbol}</div>
                     </div>
                 </div>
 
                 <div className="mt-3 text-xs text-gray-500">
-                    说明：<br/>
-                    1. 止损亏损金额 = ETH 数量 x 价格差；若结果看起来不合理，请检查止损/止盈相对于入场价的方向（多/空）。<br/>
-                    2. 当盈亏比高于2.0时建议使用半凯利系数(half Kelly),它将凯利系数减半。此为保守策略，用于限制风险。<br/>
+                    说明：<br />
+                    1. 止损亏损金额 = ETH 数量 x 价格差；若结果看起来不合理，请检查止损/止盈相对于入场价的方向（多/空）。<br />
+                    2. 当盈亏比高于2.0时建议使用半凯利系数(half Kelly),它将凯利系数减半。此为保守策略，用于限制风险。<br />
                 </div>
             </div>
         </div>

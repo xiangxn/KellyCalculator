@@ -4,23 +4,31 @@ import { Line } from "react-chartjs-2";
 
 ChartJS.register(...registerables);
 
+const quoteSymbol = "USDT"
+let baseSymbol = "ETH"
+
 export default function KellyCalculator() {
   const [capital, setCapital] = useState(1000);
   const [rr, setRr] = useState(1.5);
   const [winRate, setWinRate] = useState(0.5);
   const [leverage, setLeverage] = useState(20);
-  const [symbol, setSymbol] = useState("ETHUSDT");
+  const [symbol, setBaseSymbol] = useState(`${baseSymbol}${quoteSymbol}`);
   const [entryPrice, setEntryPrice] = useState(2000);
   const [swingPct, setSwingPct] = useState<number | null>(null);
   const [halfKelly, setHalfKelly] = useState(true);
   const [isLong, setIsLong] = useState(true); // true=多, false=空
   const [result, setResult] = useState<any>(null);
 
+  function setSymbol(sym: string) {
+    baseSymbol = sym.replace(quoteSymbol, '')
+    setBaseSymbol(sym)
+  }
+
   useEffect(() => {
     async function fetchSwing() {
       try {
         const res = await fetch(
-          `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=4h&limit=50`
+          `https://fapi.binance.com/fapi/v1/klines?symbol=${symbol}&interval=4h&limit=50`
         );
         const data = await res.json();
         let maxSwing = 0;
@@ -39,6 +47,7 @@ export default function KellyCalculator() {
   }, [symbol]);
 
   useEffect(() => {
+    if (Number.isNaN(capital) || Number.isNaN(rr) || Number.isNaN(winRate) || Number.isNaN(leverage) || swingPct == null) return;
     if (swingPct != null) {
       let f = (rr * winRate - (1 - winRate)) / rr;
       f = Math.max(0, f);
@@ -79,7 +88,7 @@ export default function KellyCalculator() {
 
       <div className="space-y-3">
         <div>
-          <label className="block text-sm font-medium text-gray-700">Capital (USDT)</label>
+          <label className="block text-sm font-medium text-gray-700">Capital ({quoteSymbol})</label>
           <input type="number" value={capital} onChange={(e) => setCapital(parseFloat(e.target.value))} className="w-full border p-2 rounded" />
         </div>
 
@@ -125,10 +134,10 @@ export default function KellyCalculator() {
       {result && (
         <div className="mt-4 space-y-1">
           <p>Kelly Fraction: {(result.fraction * 100).toFixed(2)}%</p>
-          <p>Risk Amount: {result.riskAmount.toFixed(2)} USDT</p>
+          <p>Risk Amount: {result.riskAmount.toFixed(2)} {quoteSymbol}</p>
           <p>Stop Loss: {(result.stopLossPct * 100).toFixed(2)}%</p>
-          <p>Nominal Position: {result.positionNominal.toFixed(2)} USDT</p>
-          <p>Margin Used: {result.positionMargin.toFixed(2)} USDT</p>
+          <p>Nominal Position: {result.positionNominal.toFixed(2)} {quoteSymbol}</p>
+          <p>Margin Used: {result.positionMargin.toFixed(2)} {quoteSymbol}</p>
         </div>
       )}
 
@@ -139,7 +148,7 @@ export default function KellyCalculator() {
               labels: ["Stop Loss", "Break Even", "Target"],
               datasets: [
                 {
-                  label: "风险分布 (USDT)",
+                  label: `风险分布 (${quoteSymbol})`,
                   data: [-result.riskAmount, 0, result.riskAmount * rr],
                   borderColor: "rgb(75, 192, 192)",
                   backgroundColor: ["#f87171", "#60a5fa", "#34d399"],
@@ -157,20 +166,20 @@ export default function KellyCalculator() {
                 legend: { display: false },
                 tooltip: {
                   callbacks: {
-                    label: function (context:any) {
+                    label: function (context: any) {
                       const labelMap = ["Stop Loss", "Break Even", "Target"];
                       const index = context.dataIndex;
                       let price = result.breakEvenPrice;
                       if (index === 0) price = result.stopLossPrice;
                       else if (index === 2) price = result.targetPrice;
-                      return `${labelMap[index]}: ${context.raw.toFixed(2)} USDT / ETH: ${price.toFixed(2)}`;
+                      return `${labelMap[index]}: ${context.raw.toFixed(2)}, ${baseSymbol}/${quoteSymbol} : ${price.toFixed(2)}`;
                     }
                   }
                 }
               },
               scales: {
                 y: {
-                  title: { display: true, text: "USDT" },
+                  title: { display: true, text: quoteSymbol },
                   beginAtZero: true
                 },
                 x: { title: { display: true, text: "Status" } }
